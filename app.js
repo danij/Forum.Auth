@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
+var double_submit_cookie = require('./routes/double_submit_cookie');
 
 var app = express();
 
@@ -13,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', index);
+app.use('/double_submit_cookie', double_submit_cookie);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
