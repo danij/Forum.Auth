@@ -29,10 +29,10 @@ passport.deserializeUser(function (user, done) {
     done(null, user);
 });
 
-function getToken(req, res) {
+function getToken(req, res, prefix) {
 
     res.send({
-        id: req.user.id
+        id: prefix_' + req.user.id
     });
 }
 
@@ -45,6 +45,6 @@ router.get('/',
     }),
     getToken);
 
-router.get('/callback', passport.authenticate('google'), getToken);
+router.get('/callback', passport.authenticate('google'), getToken, 'google');
 
 module.exports = router;
