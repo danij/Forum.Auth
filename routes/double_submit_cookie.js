@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const router = express.Router();
 
 const COOKIE_BYTES_LENGTH = 16;
-const COOKIE_NAME = 'doubleSubmit';
+const COOKIE_NAME = 'double_submit';
 
 function generateNewValue() {
 
@@ -24,7 +24,7 @@ router.get('/', function (req, res, next) {
     }
 
     res.cookie(COOKIE_NAME, value, {'httpOnly': true});
-    res.send(process.env.PREFIX + JSON.stringify({doubleSubmit: value}));
+    res.send(process.env.PREFIX + JSON.stringify({double_submit: value}));
 });
 
 module.exports = router;
