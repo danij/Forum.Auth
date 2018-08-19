@@ -38,19 +38,41 @@ function hashId(input) {
     return sha.digest('hex');
 }
 
+const redirectCookieName = 'login_redirect';
+const expectedReferer = process.env.EXPECTED_REFERER;
+
 function getToken(req, res) {
 
+    const redirectTo = req.cookies[redirectCookieName];
+
+    res.cookie(redirectCookieName, '', {maxAge: 0});
+
     res.send({
-        id: req.user.provider + '_' + hashId(req.user.id)
+        id: req.user.provider + '_' + hashId(req.user.id),
+        redirectTo: redirectTo
     });
 }
 
-router.get('/', passport.authenticate('google', {
-        scope: [
-            'https://www.googleapis.com/auth/plus.login',
-        ],
-        session: false
-    }), getToken);
+router.get('/', (req, res, next) => {
+
+    const referer = req.headers.referer;
+
+    if ( ! referer.startsWith(expectedReferer)) {
+
+        res.send('Invalid Referer.');
+
+    } else {
+
+        res.cookie(redirectCookieName, referer, {maxAge: 600000});
+        next();
+    }
+
+}, passport.authenticate('google', {
+    scope: [
+        'https://www.googleapis.com/auth/plus.login',
+    ],
+    session: false
+}), getToken);
 
 router.get('/callback_google', passport.authenticate('google'), getToken);
 
