@@ -1,10 +1,10 @@
-var express = require('express');
-var crypto = require('crypto');
+const express = require('express');
+const crypto = require('crypto');
 
-var router = express.Router();
+const router = express.Router();
 
-var COOKIE_BYTES_LENGTH = 16;
-var COOKIE_NAME = 'DoubleSubmit';
+const COOKIE_BYTES_LENGTH = 16;
+const COOKIE_NAME = 'DoubleSubmit';
 
 function generateNewValue() {
 
@@ -13,7 +13,7 @@ function generateNewValue() {
 
 router.get('/', function (req, res, next) {
 
-    var value;
+    let value;
 
     if (req.cookies && req.cookies[COOKIE_NAME] && req.cookies[COOKIE_NAME].length) {
 

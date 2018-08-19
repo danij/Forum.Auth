@@ -1,15 +1,15 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.AUTH_CALLBACK
     },
-    function (accessToken, refreshToken, profile, done) {
+    (accessToken, refreshToken, profile, done) => {
 
         return done(null, {
 
@@ -19,12 +19,12 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.serializeUser(function (user, done) {
+passport.serializeUser((user, done) => {
 
     done(null, user);
 });
 
-passport.deserializeUser(function (user, done) {
+passport.deserializeUser((user, done) => {
 
     done(null, user);
 });
@@ -32,7 +32,7 @@ passport.deserializeUser(function (user, done) {
 function getToken(req, res, prefix) {
 
     res.send({
-        id: prefix_' + req.user.id
+        id: prefix + '_' + req.user.id
     });
 }
 
