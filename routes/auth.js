@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 
 const passport = require('passport');
@@ -29,10 +30,18 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
+function hashId(input) {
+
+    const sha = crypto.createHash('sha1');
+
+    sha.update(input, 'utf8');
+    return sha.digest('hex');
+}
+
 function getToken(req, res) {
 
     res.send({
-        id: req.user.provider + '_' + req.user.id
+        id: req.user.provider + '_' + hashId(req.user.id)
     });
 }
 
