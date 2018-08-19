@@ -7,7 +7,7 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.AUTH_CALLBACK
+        callbackURL: process.env.AUTH_CALLBACK + '_google'
     },
     (accessToken, refreshToken, profile, done) => {
 
@@ -29,22 +29,20 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
-function getToken(req, res, prefix) {
+function getToken(req, res) {
 
     res.send({
-        id: prefix + '_' + req.user.id
+        id: req.user.provider + '_' + req.user.id
     });
 }
 
-router.get('/',
-    passport.authenticate('google', {
+router.get('/', passport.authenticate('google', {
         scope: [
             'https://www.googleapis.com/auth/plus.login',
         ],
         session: false
-    }),
-    getToken);
+    }), getToken);
 
-router.get('/callback', passport.authenticate('google'), getToken, 'google');
+router.get('/callback_google', passport.authenticate('google'), getToken);
 
 module.exports = router;
