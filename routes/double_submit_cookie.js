@@ -24,7 +24,7 @@ router.get('/', function (req, res, next) {
     }
 
     res.cookie(COOKIE_NAME, value, {'httpOnly': true});
-    res.send({doubleSubmit: value});
+    res.send(process.env.PREFIX + JSON.stringify({doubleSubmit: value}));
 });
 
 module.exports = router;
