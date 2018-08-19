@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const router = express.Router();
 
 const COOKIE_BYTES_LENGTH = 16;
-const COOKIE_NAME = 'DoubleSubmit';
+const COOKIE_NAME = 'doubleSubmit';
 
 function generateNewValue() {
 
