@@ -102,4 +102,19 @@ router.get('/', (req, res, next) => {
 
 router.get('/callback_google', passport.authenticate('google'), getToken);
 
+router.get('/logout', (req, res) => {
+
+    const referer = req.headers.referer;
+
+    if ( ! referer.startsWith(expectedReferer)) {
+
+        res.send('Invalid Referer.');
+
+    } else {
+
+        res.cookie(authCookieName, '', {maxAge: 0, httpOnly: true});
+        res.redirect(referer);
+    }
+});
+
 module.exports = router;
