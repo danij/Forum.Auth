@@ -3,28 +3,29 @@ const crypto = require('crypto');
 
 const router = express.Router();
 
-const COOKIE_BYTES_LENGTH = 16;
-const COOKIE_NAME = 'double_submit';
+const cookieBytesLength = 16;
+const cookieName = 'double_submit';
+const jsonPrefix = process.env.PREFIX;
 
 function generateNewValue() {
 
-    return crypto.randomBytes(COOKIE_BYTES_LENGTH).toString('hex');
+    return crypto.randomBytes(cookieBytesLength).toString('hex');
 }
 
 router.get('/', function (req, res, next) {
 
     let value;
 
-    if (req.cookies && req.cookies[COOKIE_NAME] && req.cookies[COOKIE_NAME].length) {
+    if (req.cookies && req.cookies[cookieName] && req.cookies[cookieName].length) {
 
-        value = req.cookies[COOKIE_NAME];
+        value = req.cookies[cookieName];
     }
     else {
         value = generateNewValue();
     }
 
-    res.cookie(COOKIE_NAME, value, {'httpOnly': true});
-    res.send(process.env.PREFIX + JSON.stringify({double_submit: value}));
+    res.cookie(cookieName, value, {httpOnly: true});
+    res.send(jsonPrefix + JSON.stringify({double_submit: value}));
 });
 
 module.exports = router;
