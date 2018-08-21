@@ -51,6 +51,26 @@ function generateRandomToken() {
     return crypto.randomBytes(authCookieSize).toString('hex');
 }
 
+function beforeFilter(req, res, next) {
+
+    const referer = req.headers.referer;
+
+    if (! referer.startsWith(expectedReferer)) {
+
+        res.send('Invalid Referer.');
+        return;
+    }
+
+    res.cookie(redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
+
+    if (req.query['show-in-users-online'] === 'true') {
+
+        res.cookie('show_my_user_in_users_online', 'true', {httpOnly: true})
+    }
+
+    next();
+}
+
 async function getToken(req, res, next) {
 
     const redirectTo = req.cookies[redirectCookieName];
@@ -73,27 +93,13 @@ async function getToken(req, res, next) {
             next(new Error(res.statusText));
         }
     }
-    catch(e) {
+    catch (e) {
 
         next(e);
     }
 }
 
-router.get('/', (req, res, next) => {
-
-    const referer = req.headers.referer;
-
-    if ( ! referer.startsWith(expectedReferer)) {
-
-        res.send('Invalid Referer.');
-
-    } else {
-
-        res.cookie(redirectCookieName, referer, {maxAge: 600000});
-        next();
-    }
-
-}, passport.authenticate('google', {
+router.get('/google/', beforeFilter, passport.authenticate('google', {
     scope: [
         'https://www.googleapis.com/auth/plus.login',
     ],
@@ -106,7 +112,7 @@ router.get('/logout', (req, res) => {
 
     const referer = req.headers.referer;
 
-    if ( ! referer.startsWith(expectedReferer)) {
+    if (! referer.startsWith(expectedReferer)) {
 
         res.send('Invalid Referer.');
 
