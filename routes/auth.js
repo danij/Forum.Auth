@@ -40,7 +40,6 @@ function hashId(input) {
 }
 
 const redirectCookieName = 'login_redirect';
-const expectedReferer = process.env.EXPECTED_REFERER;
 const authCookieSize = 16;
 const authCookieName = 'auth';
 const authDurationSeconds = parseInt(process.env.AUTH_SECONDS);
@@ -53,13 +52,20 @@ function generateRandomToken() {
 
 function beforeFilter(req, res, next) {
 
+    if ( ! req.hasConsentedToFpCookies) {
+
+        res.status(400);
+        res.send('Cookie consent required before logging in.');
+        return;
+    }
+
     const referer = req.headers.referer;
 
-    res.cookie(redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
+    res.cookieIfConsented(redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
 
     if (req.query['show-in-users-online'] === 'true') {
 
-        res.cookie('show_my_user_in_users_online', 'true', {httpOnly: true})
+        res.cookieIfConsented('show_my_user_in_users_online', 'true', {httpOnly: true});
     }
 
     next();
@@ -69,7 +75,7 @@ async function getToken(req, res, next) {
 
     const redirectTo = req.cookies[redirectCookieName];
 
-    res.cookie(redirectCookieName, '', {maxAge: 0});
+    res.cookieIfConsented(redirectCookieName, '', {maxAge: 0});
 
     const authToken = generateRandomToken();
     const authId = req.user.provider + '_' + hashId(req.user.id);
@@ -80,7 +86,7 @@ async function getToken(req, res, next) {
 
         if (response.status >= 200 && response.status < 300) {
 
-            res.cookie(authCookieName, authToken, {maxAge: authDurationSeconds * 1000, httpOnly: true});
+            res.cookieIfConsented(authCookieName, authToken, {maxAge: authDurationSeconds * 1000, httpOnly: true});
             res.redirect(redirectTo);
         }
         else {
@@ -104,7 +110,7 @@ router.get('/callback_google', passport.authenticate('google'), getToken);
 
 router.get('/logout', (req, res) => {
 
-    res.cookie(authCookieName, '', {maxAge: 0, httpOnly: true});
+    res.cookieIfConsented(authCookieName, '', {maxAge: 0, httpOnly: true});
     res.redirect(referer);
 });
 

@@ -7,6 +7,21 @@ function validateAddressStart(needle, haystack) {
 
 module.exports = {
 
+    checkCookieConsent: (req, res, next) => {
+
+        req.hasConsentedToFpCookies = 'yes' === req.cookies['allow_cookies_fp'];
+
+        res.cookieIfConsented = (name, value, properties) => {
+
+            if (req.hasConsentedToFpCookies) {
+
+                res.cookie(name, value, properties);
+            }
+        };
+
+        next();
+    },
+
     originRefererValidation: (req, res, next) => {
 
         const origin = req.headers.origin;

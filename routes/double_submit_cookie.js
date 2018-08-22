@@ -24,7 +24,7 @@ router.get('/', function (req, res, next) {
         value = generateNewValue();
     }
 
-    res.cookie(cookieName, value, {httpOnly: true});
+    res.cookieIfConsented(cookieName, value, {httpOnly: true});
     res.send(jsonPrefix + JSON.stringify({double_submit: value}));
 });
 
