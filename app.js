@@ -6,7 +6,7 @@ const passport = require('passport');
 
 const {checkCookieConsent, originRefererValidation} = require('./routes/validation');
 
-const auth = require('./routes/auth');
+const provider = require('./routes/provider');
 const consent = require('./routes/consent');
 const double_submit_cookie = require('./routes/double_submit_cookie');
 
@@ -25,7 +25,7 @@ app.use(originRefererValidation);
 
 app.use('/consent', consent);
 app.use('/double_submit_cookie', double_submit_cookie);
-app.use('/', auth);
+app.use('/provider', provider);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
