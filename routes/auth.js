@@ -55,12 +55,6 @@ function beforeFilter(req, res, next) {
 
     const referer = req.headers.referer;
 
-    if (! referer.startsWith(expectedReferer)) {
-
-        res.send('Invalid Referer.');
-        return;
-    }
-
     res.cookie(redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
 
     if (req.query['show-in-users-online'] === 'true') {
@@ -110,17 +104,8 @@ router.get('/callback_google', passport.authenticate('google'), getToken);
 
 router.get('/logout', (req, res) => {
 
-    const referer = req.headers.referer;
-
-    if (! referer.startsWith(expectedReferer)) {
-
-        res.send('Invalid Referer.');
-
-    } else {
-
-        res.cookie(authCookieName, '', {maxAge: 0, httpOnly: true});
-        res.redirect(referer);
-    }
+    res.cookie(authCookieName, '', {maxAge: 0, httpOnly: true});
+    res.redirect(referer);
 });
 
 module.exports = router;

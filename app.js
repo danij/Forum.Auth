@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
+const {originRefererValidation} = require('./routes/validation');
 const double_submit_cookie = require('./routes/double_submit_cookie');
 const auth = require('./routes/auth');
 
@@ -14,6 +15,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(passport.initialize());
+
+//check referer and origin headers
+app.use(originRefererValidation);
 
 app.use('/double_submit_cookie', double_submit_cookie);
 app.use('/', auth);
