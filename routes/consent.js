@@ -21,6 +21,7 @@ router.delete('/consent_fp_cookies', (req, res) => {
 
         'allow_cookies_fp',
         'auth',
+        'auth_provider',
         'double_submit',
         'login_redirect',
         'show_my_user_in_users_online'

@@ -90,7 +90,7 @@ async function getToken(req, res, next) {
         if (response.status >= 200 && response.status < 300) {
 
             res.cookieIfConsented(authCookieName, authToken, {maxAge: authDurationSeconds * 1000, httpOnly: true});
-            res.cookieIfConsented(authProviderName, req.user.provider, {maxAge: authDurationSeconds * 1000});
+            res.cookieIfConsented(authProviderName, 'external', {maxAge: authDurationSeconds * 1000});
             res.redirect(redirectTo);
         }
         else {
