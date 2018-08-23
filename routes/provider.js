@@ -5,10 +5,12 @@ const crypto = require('crypto');
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const clientId = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        clientID: clientId,
+        clientSecret: clientSecret,
         callbackURL: process.env.AUTH_CALLBACK + '_google'
     },
     (accessToken, refreshToken, profile, done) => {
@@ -99,14 +101,17 @@ async function getToken(req, res, next) {
     }
 }
 
-router.get('/google/', beforeFilter, passport.authenticate('google', {
-    scope: [
-        'https://www.googleapis.com/auth/plus.login',
-    ],
-    session: false
-}), getToken);
+if (clientId && clientSecret) {
 
-router.get('/callback_google', passport.authenticate('google'), getToken);
+    router.get('/google/', beforeFilter, passport.authenticate('google', {
+        scope: [
+            'https://www.googleapis.com/auth/plus.login',
+        ],
+        session: false
+    }), getToken);
+
+    router.get('/callback_google', passport.authenticate('google'), getToken);
+}
 
 router.get('/logout', (req, res) => {
 
