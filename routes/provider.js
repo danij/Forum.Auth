@@ -18,7 +18,7 @@ passport.use(new GoogleStrategy({
         return done(null, {
 
             id: profile.id,
-            provider: profile.provider
+            provider: 'google'
         });
     }
 ));
@@ -44,6 +44,7 @@ function hashId(input) {
 const redirectCookieName = 'login_redirect';
 const authCookieSize = 16;
 const authCookieName = 'auth';
+const authProviderName = 'auth_provider';
 const authDurationSeconds = parseInt(process.env.AUTH_SECONDS);
 const authRegisterUrl = process.env.AUTH_REGISTER_URL;
 
@@ -89,6 +90,7 @@ async function getToken(req, res, next) {
         if (response.status >= 200 && response.status < 300) {
 
             res.cookieIfConsented(authCookieName, authToken, {maxAge: authDurationSeconds * 1000, httpOnly: true});
+            res.cookieIfConsented(authProviderName, req.user.provider, {maxAge: authDurationSeconds * 1000});
             res.redirect(redirectTo);
         }
         else {
