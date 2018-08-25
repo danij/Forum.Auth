@@ -5,7 +5,6 @@ const router = express.Router();
 
 const cookieBytesLength = 16;
 const cookieName = 'double_submit';
-const jsonPrefix = process.env.PREFIX;
 
 function generateNewValue() {
 
@@ -25,7 +24,7 @@ router.get('/', function (req, res, next) {
     }
 
     res.cookieIfConsented(cookieName, value, {httpOnly: true});
-    res.send(jsonPrefix + JSON.stringify({double_submit: value}));
+    res.sendJson({double_submit: value});
 });
 
 module.exports = router;

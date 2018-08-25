@@ -1,3 +1,5 @@
+const jsonPrefix = process.env.PREFIX;
+
 function validateAddressStart(needle, haystack) {
 
     if (haystack.indexOf(needle) != 0) return false;
@@ -42,5 +44,15 @@ module.exports = {
 
             next();
         }
+    },
+
+    sendJsonWithPrefix: (req, res, next) => {
+
+        res.sendJson = (obj) => {
+
+            res.send(jsonPrefix + JSON.stringify(obj));
+        };
+
+        next();
     }
 };

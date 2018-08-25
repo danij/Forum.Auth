@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
-const {checkCookieConsent, originRefererValidation} = require('./routes/validation');
+const {checkCookieConsent, originRefererValidation, sendJsonWithPrefix} = require('./routes/validation');
 
 const provider = require('./routes/provider');
 const consent = require('./routes/consent');
@@ -19,6 +19,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use(checkCookieConsent);
+app.use(sendJsonWithPrefix);
 
 //check referer and origin headers
 app.use(originRefererValidation);
