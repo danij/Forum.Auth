@@ -61,6 +61,12 @@ function beforeFilter(req, res, next) {
         res.send('Cookie consent required before logging in.');
         return;
     }
+    if (req.query['accepted-privacy-policy-and-tos'] !== 'true') {
+
+        res.status(400);
+        res.send('The privacy policy and terms of service must be accepted before logging in.');
+        return;
+    }
 
     const referer = req.headers.referer;
 
