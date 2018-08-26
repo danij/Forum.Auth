@@ -2,9 +2,9 @@ const jsonPrefix = process.env.PREFIX;
 
 function validateAddressStart(needle, haystack) {
 
-    if (haystack.indexOf(needle) != 0) return false;
+    if (haystack.indexOf(needle) !== 0) return false;
 
-    return (needle.length == haystack.length) || ('/' == haystack[needle.length]);
+    return (needle.length === haystack.length) || ('/' === haystack[needle.length]);
 }
 
 module.exports = {
