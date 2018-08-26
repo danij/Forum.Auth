@@ -30,7 +30,12 @@ module.exports = {
         const referer = req.headers.referer;
         const expected = process.env.EXPECTED_ORIGIN;
 
-        if (origin && ! validateAddressStart(expected, origin)) {
+        if (( ! origin) && ( ! referer)) {
+
+            res.status(400);
+            res.send('Origin and Referer missing.');
+        }
+        else if (origin && ! validateAddressStart(expected, origin)) {
 
             res.status(400);
             res.send('Invalid Origin.');
