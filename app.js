@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
-const {checkCookieConsent, originRefererValidation, sendJsonWithPrefix} = require('./routes/validation');
+const {checkCookieConsent, originRefererValidation, sendJsonWithPrefix, doubleSubmitCookieValidation} = require('./routes/validation');
 
 const provider = require('./routes/provider');
 const consent = require('./routes/consent');
@@ -27,6 +27,8 @@ app.use(originRefererValidation);
 app.use('/consent', consent);
 app.use('/double_submit_cookie', double_submit_cookie);
 app.use('/provider', provider);
+
+app.use(doubleSubmitCookieValidation);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

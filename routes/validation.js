@@ -54,5 +54,26 @@ module.exports = {
         };
 
         next();
+    },
+
+    doubleSubmitCookieValidation: (req, res, next) => {
+
+        const cookieValue = req.cookies['double_submit'];
+        const headerValue = req.headers['x-double-submit'];
+
+        if (( ! cookieValue) && ( ! headerValue)) {
+
+            res.status(400);
+            res.send('Double submit values not present.');
+        }
+        else if (cookieValue !== headerValue) {
+
+            res.status(400);
+            res.send('Double submit values mismatch.');
+        }
+        else {
+
+            next();
+        }
     }
 };
