@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const crypto = require('crypto');
+const constants = require('./constants');
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -41,16 +42,9 @@ function hashId(input) {
     return sha.digest('hex');
 }
 
-const redirectCookieName = 'login_redirect';
-const authCookieSize = 16;
-const authCookieName = 'auth';
-const authProviderName = 'auth_provider';
-const authDurationSeconds = parseInt(process.env.AUTH_SECONDS);
-const authRegisterUrl = process.env.AUTH_REGISTER_URL;
-
 function generateRandomToken() {
 
-    return crypto.randomBytes(authCookieSize).toString('hex');
+    return crypto.randomBytes(constants.authCookieSize).toString('hex');
 }
 
 function beforeFilter(req, res, next) {
@@ -70,7 +64,7 @@ function beforeFilter(req, res, next) {
 
     const referer = req.headers.referer;
 
-    res.cookieIfConsented(redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
+    res.cookieIfConsented(constants.redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
 
     if (req.query['show-in-users-online'] === 'true') {
 
@@ -82,21 +76,21 @@ function beforeFilter(req, res, next) {
 
 async function getToken(req, res, next) {
 
-    const redirectTo = req.cookies[redirectCookieName];
+    const redirectTo = req.cookies[constants.redirectCookieName];
 
-    res.cookieIfConsented(redirectCookieName, '', {maxAge: 0});
+    res.cookieIfConsented(constants.redirectCookieName, '', {maxAge: 0});
 
     const authToken = generateRandomToken();
     const authId = req.user.provider + '_' + hashId(req.user.id);
 
     try {
-        const response = await axios.post(authRegisterUrl +
-            ['login', authToken, authId, authDurationSeconds.toString()].map(encodeURIComponent).join('/'));
+        const response = await axios.post(constants.authRegisterUrl +
+            ['login', authToken, authId, constants.authDurationSeconds.toString()].map(encodeURIComponent).join('/'));
 
         if (response.status >= 200 && response.status < 300) {
 
-            res.cookieIfConsented(authCookieName, authToken, {maxAge: authDurationSeconds * 1000, httpOnly: true});
-            res.cookieIfConsented(authProviderName, 'external', {maxAge: authDurationSeconds * 1000});
+            res.cookieIfConsented(constants.authCookieName, authToken, {maxAge: constants.authDurationSeconds * 1000, httpOnly: true});
+            res.cookieIfConsented(constants.authProviderName, 'external', {maxAge: constants.authDurationSeconds * 1000});
             res.redirect(redirectTo);
         }
         else {
@@ -120,11 +114,5 @@ if (clientId && clientSecret) {
 
     router.get('/callback_google', passport.authenticate('google'), getToken);
 }
-
-router.get('/logout', (req, res) => {
-
-    res.cookieIfConsented(authCookieName, '', {maxAge: 0, httpOnly: true});
-    res.redirect(referer);
-});
 
 module.exports = router;

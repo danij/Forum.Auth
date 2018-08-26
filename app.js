@@ -9,6 +9,7 @@ const {checkCookieConsent, originRefererValidation, sendJsonWithPrefix, doubleSu
 const provider = require('./routes/provider');
 const consent = require('./routes/consent');
 const double_submit_cookie = require('./routes/double_submit_cookie');
+const logout = require('./routes/logout');
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use('/double_submit_cookie', double_submit_cookie);
 app.use('/provider', provider);
 
 app.use(doubleSubmitCookieValidation);
+
+app.use('/logout', logout);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
