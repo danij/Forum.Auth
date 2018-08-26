@@ -1,4 +1,4 @@
-const jsonPrefix = process.env.PREFIX;
+const constants = require('./constants.js');
 
 function validateAddressStart(needle, haystack) {
 
@@ -55,7 +55,7 @@ module.exports = {
 
         res.sendJson = (obj) => {
 
-            res.send(jsonPrefix + JSON.stringify(obj));
+            res.send(constants.jsonPrefix + JSON.stringify(obj));
         };
 
         next();
@@ -63,8 +63,8 @@ module.exports = {
 
     doubleSubmitCookieValidation: (req, res, next) => {
 
-        const cookieValue = req.cookies['double_submit'];
-        const headerValue = req.headers['x-double-submit'];
+        const cookieValue = req.cookies[constants.doubleSubmitCookieName];
+        const headerValue = req.headers[constants.doubleSubmitHeaderName];
 
         if (( ! cookieValue) && ( ! headerValue)) {
 
