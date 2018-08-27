@@ -80,5 +80,14 @@ module.exports = {
 
             next();
         }
+    },
+
+    setupSourceAddress: (req, res, next) => {
+
+        req.sourceAddress = constants.trustForwardedIP
+            ? req.headers['x-forwarded-for']
+            : req.connection.remoteAddress;
+
+        next();
     }
 };
