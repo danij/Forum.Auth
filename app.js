@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
-const {checkCookieConsent, originRefererValidation, sendJsonWithPrefix, doubleSubmitCookieValidation, setupSourceAddress} = require('./routes/validation');
+const validation = require('./routes/validation');
 
 const provider = require('./routes/provider');
 const consent = require('./routes/consent');
@@ -19,18 +19,18 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(passport.initialize());
 
-app.use(setupSourceAddress);
-app.use(checkCookieConsent);
-app.use(sendJsonWithPrefix);
+app.use(validation.setupSourceAddress);
+app.use(validation.checkCookieConsent);
+app.use(validation.sendJsonWithPrefix);
 
 //check referer and origin headers
-app.use(originRefererValidation);
+app.use(validation.originRefererValidation);
 
 app.use('/consent', consent);
 app.use('/double_submit_cookie', double_submit_cookie);
 app.use('/provider', provider);
 
-app.use(doubleSubmitCookieValidation);
+app.use(validation.doubleSubmitCookieValidation);
 
 app.use('/logout', logout);
 
