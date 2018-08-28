@@ -10,5 +10,6 @@ module.exports = {
     doubleSubmitHeaderName: 'x-double-submit',
     jsonPrefix: process.env.PREFIX,
     redirectCookieName: 'login_redirect',
-    trustForwardedIP: process.env.TRUST_FORWARDED_IP === 'true'
+    trustForwardedIP: process.env.TRUST_FORWARDED_IP === 'true',
+    useSecureCookies: process.env.SECURE_COOKIES === 'true'
 };

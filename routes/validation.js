@@ -13,11 +13,11 @@ module.exports = {
 
         req.hasConsentedToFpCookies = 'yes' === req.cookies['allow_cookies_fp'];
 
-        res.cookieIfConsented = (name, value, properties) => {
+        res.cookieIfConsented = (name, value, options) => {
 
             if (req.hasConsentedToFpCookies) {
 
-                res.cookie(name, value, properties);
+                res.cookieSecureAuto(name, value, options);
             }
         };
 
@@ -87,6 +87,19 @@ module.exports = {
         req.sourceAddress = constants.trustForwardedIP
             ? req.headers['x-forwarded-for']
             : req.connection.remoteAddress;
+
+        next();
+    },
+
+    secureCookieHelper: (req, res, next) => {
+
+        res.cookieSecureAuto = (name, value, options) => {
+
+            options = options || {};
+            options.secure = constants.useSecureCookies;
+
+            res.cookie(name, value, options);
+        };
 
         next();
     }

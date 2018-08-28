@@ -11,7 +11,7 @@ function removeCookie(res, name) {
 
 router.post('/consent_fp_cookies', (req, res) => {
 
-    res.cookie('allow_cookies_fp', 'yes', {maxAge: consentSeconds * 1000});
+    res.cookieSecureAuto('allow_cookies_fp', 'yes', {maxAge: consentSeconds * 1000});
     res.send(jsonPrefix + JSON.stringify('ok'));
 });
 
@@ -37,13 +37,13 @@ router.delete('/consent_fp_cookies', (req, res) => {
 
 router.post('/consent_external_images', (req, res) => {
 
-    res.cookie('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
+    res.cookieSecureAuto('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
     res.send(jsonPrefix + JSON.stringify('ok'));
 });
 
 router.delete('/consent_external_images', (req, res) => {
 
-    res.cookie('allow_external_images', '', {maxAge: 1});
+    res.cookieSecureAuto('allow_external_images', '', {maxAge: 1});
     res.send(jsonPrefix + JSON.stringify('ok'));
 });
 
