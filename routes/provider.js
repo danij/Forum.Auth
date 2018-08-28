@@ -9,30 +9,33 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const clientId = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-passport.use(new GoogleStrategy({
-        clientID: clientId,
-        clientSecret: clientSecret,
-        callbackURL: process.env.AUTH_CALLBACK + '_google'
-    },
-    (accessToken, refreshToken, profile, done) => {
+if (clientId && clientSecret) {
 
-        return done(null, {
+    passport.use(new GoogleStrategy({
+            clientID: clientId,
+            clientSecret: clientSecret,
+            callbackURL: process.env.AUTH_CALLBACK + '_google'
+        },
+        (accessToken, refreshToken, profile, done) => {
 
-            id: profile.id,
-            provider: 'google'
-        });
-    }
-));
+            return done(null, {
 
-passport.serializeUser((user, done) => {
+                id: profile.id,
+                provider: 'google'
+            });
+        }
+    ));
 
-    done(null, user);
-});
+    passport.serializeUser((user, done) => {
 
-passport.deserializeUser((user, done) => {
+        done(null, user);
+    });
 
-    done(null, user);
-});
+    passport.deserializeUser((user, done) => {
+
+        done(null, user);
+    });
+}
 
 function hashId(input) {
 
