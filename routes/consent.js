@@ -37,13 +37,13 @@ router.delete('/consent_fp_cookies', (req, res) => {
 
 router.post('/consent_external_images', (req, res) => {
 
-    res.cookieSecureAuto('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
+    res.cookieIfConsented('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
     res.send(jsonPrefix + JSON.stringify('ok'));
 });
 
 router.delete('/consent_external_images', (req, res) => {
 
-    res.cookieSecureAuto('allow_external_images', '', {maxAge: 1});
+    removeCookie(res, 'allow_external_images');
     res.send(jsonPrefix + JSON.stringify('ok'));
 });
 
