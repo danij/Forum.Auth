@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const consentSeconds = 3600*24*30;
-const jsonPrefix = process.env.PREFIX;
 
 function removeCookie(res, name) {
 
@@ -12,7 +11,7 @@ function removeCookie(res, name) {
 router.post('/consent_fp_cookies', (req, res) => {
 
     res.cookieSecureAuto('allow_cookies_fp', 'yes', {maxAge: consentSeconds * 1000});
-    res.send(jsonPrefix + JSON.stringify('ok'));
+    res.sendJson('ok');
 });
 
 router.delete('/consent_fp_cookies', (req, res) => {
@@ -32,19 +31,19 @@ router.delete('/consent_fp_cookies', (req, res) => {
 
         removeCookie(res, cookieName);
     }
-    res.send(jsonPrefix + JSON.stringify('ok'));
+    res.sendJson('ok');
 });
 
 router.post('/consent_external_images', (req, res) => {
 
     res.cookieIfConsented('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
-    res.send(jsonPrefix + JSON.stringify('ok'));
+    res.sendJson('ok');
 });
 
 router.delete('/consent_external_images', (req, res) => {
 
     removeCookie(res, 'allow_external_images');
-    res.send(jsonPrefix + JSON.stringify('ok'));
+    res.sendJson('ok');
 });
 
 module.exports = router;
