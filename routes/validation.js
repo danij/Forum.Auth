@@ -26,7 +26,8 @@ module.exports = {
 
     originRefererValidation: (req, res, next) => {
 
-        if (req.originalUrl.startsWith('/custom/confirm/')) {
+        if (req.originalUrl.startsWith('/custom/confirm/')
+            || req.originalUrl.startsWith('/provider/callback_')) {
 
             next(); //exception
             return;
@@ -69,7 +70,8 @@ module.exports = {
 
     doubleSubmitCookieValidation: (req, res, next) => {
 
-        if (req.originalUrl.startsWith('/custom/confirm/')) {
+        if (req.originalUrl.startsWith('/custom/confirm/')
+            || req.originalUrl.startsWith('/provider/callback_')) {
 
             next(); //exception
             return;
