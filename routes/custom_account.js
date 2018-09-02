@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const fs = require('fs');
 
 const constants = require('../services/constants');
 const database = require('../services/database');
 const throttling = require('../services/throttling');
 const passwordService = require('../services/password');
+const emailService = require('../services/email');
 
 function validateEmail(email) {
 
@@ -56,8 +58,13 @@ function randomAuth() {
     return 'auth_' + crypto.randomBytes(constants.registrationAuthSize).toString('hex');
 }
 
+const emailTemplate = fs.readFileSync(__dirname + '/../register_confirmation_template.html', 'utf8');
+
 function emailRegistrationConfirmation(email, confirmationId) {
 
+    const confirmationLink = constants.registrationConfirmationUrl + '/' + encodeURIComponent(confirmationId);
+    const messageBody = emailTemplate.replace(/{{confirmation_link}}/g, confirmationLink);
+    emailService.sendEmail(email, constants.registrationConfirmationTitle, messageBody, messageBody);
 }
 
 async function registerUserAndGetConfirmationId(email, password, minAge) {
