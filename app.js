@@ -8,6 +8,7 @@ const validation = require('./routes/validation');
 
 const provider = require('./routes/provider');
 const consent = require('./routes/consent');
+const custom_account = require('./routes/custom_account');
 const double_submit_cookie = require('./routes/double_submit_cookie');
 const logout = require('./routes/logout');
 
@@ -33,6 +34,7 @@ app.use('/provider', provider);
 
 app.use(validation.doubleSubmitCookieValidation);
 
+app.use('/custom', custom_account);
 app.use('/logout', logout);
 
 // catch 404 and forward to error handler

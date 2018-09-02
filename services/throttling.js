@@ -1,3 +1,5 @@
+const constants = require('./constants');
+
 function currentEpochTimeSeconds() {
 
     return Math.floor((new Date).getTime() / 1000);
@@ -15,15 +17,30 @@ function lastRequestedAt(req, actionName) {
     return result;
 }
 
+function isThrottled(req, actionName, allowedOnceEverySeconds) {
+
+    const now = currentEpochTimeSeconds();
+    const lastAt = lastRequestedAt(req, actionName);
+
+    return (now - lastAt) < allowedOnceEverySeconds;
+}
+
 module.exports = {
 
-    lastRequestedAt: lastRequestedAt,
+    intercept: (actionName, allowedOnceEverySeconds) => {
 
-    isThrottled: (req, actionName, allowedOnceEverySeconds) => {
+        return (req, res, next) => {
 
-        const now = currentEpochTimeSeconds();
-        const lastAt = lastRequestedAt(req, actionName);
+            if (isThrottled(req, actionName, allowedOnceEverySeconds)) {
 
-        return (now - lastAt) < allowedOnceEverySeconds;
+                res.sendJson({
+
+                    status: constants.statusCodes.throttled
+                });
+                return;
+            }
+
+            next();
+        }
     }
 };

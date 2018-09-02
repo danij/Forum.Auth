@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const constants = require('./constants');
+const constants = require('../services/constants');
 
 router.post('/', (req, res) => {
 

@@ -1,4 +1,4 @@
-const constants = require('./constants.js');
+const constants = require('../services/constants.js');
 
 function validateAddressStart(needle, haystack) {
 
