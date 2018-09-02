@@ -26,6 +26,12 @@ module.exports = {
 
     originRefererValidation: (req, res, next) => {
 
+        if (req.originalUrl.startsWith('/custom/confirm/')) {
+
+            next(); //exception
+            return;
+        }
+
         const origin = req.headers.origin;
         const referer = req.headers.referer;
         const expected = process.env.EXPECTED_ORIGIN;
@@ -62,6 +68,12 @@ module.exports = {
     },
 
     doubleSubmitCookieValidation: (req, res, next) => {
+
+        if (req.originalUrl.startsWith('/custom/confirm/')) {
+
+            next(); //exception
+            return;
+        }
 
         const cookieValue = req.cookies[constants.doubleSubmitCookieName];
         const headerValue = req.headers[constants.doubleSubmitHeaderName];

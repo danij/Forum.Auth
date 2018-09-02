@@ -94,6 +94,30 @@ async function registerUserAndGetConfirmationId(email, password, minAge) {
     return confirmationId;
 }
 
+async function confirmRegistration(confirmationId) {
+
+    const dbResult = await database.executeQuery(
+        'SELECT logins.id FROM login_confirmations INNER JOIN logins ON login_confirmations.login_id = logins.id ' +
+        'WHERE (logins.enabled = false) AND (login_confirmations.id = $1) AND (login_confirmations.expires > now())',
+        [confirmationId]
+    );
+    if (dbResult.rowCount < 1) return false;
+
+    const loginId = dbResult.rows[0].id;
+
+    await database.executeQuery(
+        'UPDATE logins SET enabled = true WHERE id = $1',
+        [loginId]
+    );
+
+    await database.executeQuery(
+        'DELETE FROM login_confirmations WHERE id = $1',
+        [confirmationId]
+    );
+
+    return true;
+}
+
 if (constants.enableCustomAuth) {
 
     router.post('/register', throttling.intercept('registerCustomAuth', constants.throttleRegisterCustomAuthSeconds),
@@ -142,6 +166,18 @@ if (constants.enableCustomAuth) {
                 status: constants.statusCodes.ok
             });
         });
+
+    //GET is needed as the user normally opens a link with the confirmation id
+    router.get('/confirm/:id', throttling.intercept('registerCustomAuth', constants.throttleRegisterCustomAuthSeconds),
+        async (req, res) => {
+
+        if (await confirmRegistration(req.params.id)) {
+
+            res.redirect(constants.registrationConfirmationRedirectUrl);
+            return;
+        }
+        res.send('Could not confirm registration.');
+    });
 }
 
 module.exports = router;

@@ -24,6 +24,7 @@ module.exports = {
     registrationConfirmationCookieSize: parseInt(process.env.REGISTER_CONFIRMATION_SIZE),
     registrationConfirmationTimeoutSeconds: parseInt(process.env.REGISTER_TIMEOUT_SECONDS),
     registrationConfirmationUrl: process.env.REGISTER_CONFIRMATION_URL,
+    registrationConfirmationRedirectUrl: process.env.REGISTER_CONFIRMATION_REDIRECT_URL,
     registrationConfirmationTitle: process.env.REGISTER_CONFIRMATION_TITLE,
     statusCodes: {
         ok: 0,
