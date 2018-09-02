@@ -7,6 +7,7 @@ CREATE TABLE logins (
     auth VARCHAR(128) UNIQUE NOT NULL,
     min_age_at_registration INT NOT NULL,
     created TIMESTAMPTZ DEFAULT now(),
+    last_password_change TIMESTAMPTZ DEFAULT now(),
     enabled BOOLEAN NOT NULL DEFAULT false
 );
 

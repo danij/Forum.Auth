@@ -122,7 +122,7 @@ async function confirmRegistration(confirmationId) {
 async function login(email, password) {
 
     const dbResult = await database.executeQuery(
-        'SELECT auth, password, password_details FROM logins WHERE email = $1',
+        'SELECT auth, password, password_details FROM logins WHERE (email = $1) AND (enabled = true)',
         [email]
     );
     if (dbResult.rowCount < 1) return '';
@@ -134,6 +134,31 @@ async function login(email, password) {
         return '';
     }
     return dbRow.auth;
+}
+
+async function changePassword(email, oldPassword, newPassword) {
+
+    const dbResult = await database.executeQuery(
+        'SELECT id, password, password_details FROM logins WHERE (email = $1) AND (enabled = true)',
+        [email]
+    );
+    if (dbResult.rowCount < 1) return false;
+
+    const dbRow = dbResult.rows[0];
+
+    if (dbRow.password !== await passwordService.transformPassword(oldPassword, JSON.parse(dbRow.password_details))) {
+
+        return false;
+    }
+
+    const transformedPassword = await passwordService.transformPasswordInitial(newPassword);
+
+    await database.executeQuery(
+        'UPDATE logins SET password = $1, password_details = $2, last_password_change = now() WHERE id = $3',
+        [transformedPassword.derived, JSON.stringify(transformedPassword.options), dbRow.id]
+    );
+
+    return true;
 }
 
 if (constants.enableCustomAuth) {
@@ -203,7 +228,7 @@ if (constants.enableCustomAuth) {
             const input = req.body;
 
             const valid = validateEmail(input.email)
-                && (input.password.length)
+                && (input.password && input.password.length)
                 && input.acceptPrivacy
                 && input.acceptTos;
 
@@ -240,6 +265,37 @@ if (constants.enableCustomAuth) {
             else {
 
                 throw new Error(authResult);
+            }
+        });
+
+    router.post('/change_password', throttling.intercept('changePasswordCustomAuth', constants.throttleRegisterCustomAuthSeconds),
+        async (req, res) => {
+
+            const input = req.body;
+
+            const valid = validateEmail(input.email)
+                && (input.oldPassword && input.oldPassword.length)
+                && validatePassword(input.newPassword);
+
+            if (! valid) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters
+                });
+                return;
+            }
+
+            if (await changePassword(input.email, input.oldPassword, input.newPassword)) {
+
+                res.sendJson({
+                    status: constants.statusCodes.ok
+                });
+            }
+            else {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters
+                });
             }
         });
 }
