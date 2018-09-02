@@ -26,6 +26,10 @@ module.exports = {
     registrationConfirmationUrl: process.env.REGISTER_CONFIRMATION_URL,
     registrationConfirmationRedirectUrl: process.env.REGISTER_CONFIRMATION_REDIRECT_URL,
     registrationConfirmationTitle: process.env.REGISTER_CONFIRMATION_TITLE,
+    resetPasswordConfirmationTitle: process.env.RESET_PASSWORD_CONFIRMATION_TITLE,
+    resetPasswordConfirmationUrl: process.env.RESET_PASSWORD_CONFIRMATION_URL,
+    resetPasswordConfirmationTimeoutSeconds: parseInt(process.env.RESET_PASSWORD_TIMEOUT_SECONDS),
+    resetPasswordNewPasswordSize: parseInt(process.env.RESET_PASSWORD_NEW_PASSWORD_SIZE),
     statusCodes: {
         ok: 0,
         invalidParameters: 1,
@@ -35,5 +39,6 @@ module.exports = {
     throttleRegisterCustomAuthSeconds: parseInt(process.env.REGISTER_CUSTOM_AUTH_THROTTLING),
     throttleLoginCustomAuthSeconds: parseInt(process.env.LOGIN_CUSTOM_AUTH_THROTTLING),
     throttleChangePasswordCustomAuthSeconds: parseInt(process.env.CHANGE_PASSWORD_CUSTOM_AUTH_THROTTLING),
+    throttleResetPasswordCustomAuthSeconds: parseInt(process.env.RESET_PASSWORD_CUSTOM_AUTH_THROTTLING),
     useSecureCookies: process.env.SECURE_COOKIES === 'true'
 };

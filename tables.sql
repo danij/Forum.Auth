@@ -21,3 +21,10 @@ CREATE TABLE login_confirmations (
 CREATE TABLE domain_blacklist (
     domain VARCHAR(128) PRIMARY KEY
 );
+
+CREATE TABLE reset_password_confirmations (
+    
+    id VARCHAR(128) PRIMARY KEY,
+    login_id INT NOT NULL REFERENCES logins(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    expires TIMESTAMPTZ NOT NULL
+);

@@ -59,13 +59,26 @@ function randomAuth() {
     return 'auth_' + crypto.randomBytes(constants.registrationAuthSize).toString('hex');
 }
 
-const emailTemplate = fs.readFileSync(__dirname + '/../register_confirmation_template.html', 'utf8');
+function randomPassword() {
+
+    return crypto.randomBytes(constants.resetPasswordNewPasswordSize).toString('hex');
+}
+
+const emailRegisterTemplate = fs.readFileSync(__dirname + '/../register_confirmation_template.html', 'utf8');
+const emailForgotPasswordTemplate = fs.readFileSync(__dirname + '/../reset_password_confirmation_template.html', 'utf8');
 
 function emailRegistrationConfirmation(email, confirmationId) {
 
     const confirmationLink = constants.registrationConfirmationUrl + '/' + encodeURIComponent(confirmationId);
-    const messageBody = emailTemplate.replace(/{{confirmation_link}}/g, confirmationLink);
+    const messageBody = emailRegisterTemplate.replace(/{{confirmation_link}}/g, confirmationLink);
     emailService.sendEmail(email, constants.registrationConfirmationTitle, messageBody, messageBody);
+}
+
+function emailResetPasswordLink(email, resetId) {
+
+    const confirmationLink = constants.resetPasswordConfirmationUrl + '/' + encodeURIComponent(resetId);
+    const messageBody = emailForgotPasswordTemplate.replace(/{{reset_link}}/g, confirmationLink);
+    emailService.sendEmail(email, constants.resetPasswordConfirmationTitle, messageBody, messageBody);
 }
 
 async function registerUserAndGetConfirmationId(email, password, minAge) {
@@ -159,6 +172,58 @@ async function changePassword(email, oldPassword, newPassword) {
     );
 
     return true;
+}
+
+async function getIdForResettingPassword(email) {
+
+    const dbResult = await database.executeQuery(
+        'SELECT id FROM logins WHERE (email = $1) AND (enabled = true)',
+        [email]
+    );
+    if (dbResult.rowCount < 1) return false;
+
+    const loginId = parseInt(dbResult.rows[0].id);
+    const resetId = randomConfirmationId();
+    const expiration = "interval '" + constants.resetPasswordConfirmationTimeoutSeconds + " seconds'";
+
+    await database.executeQuery(
+        'DELETE FROM reset_password_confirmations WHERE login_id = $1',
+        [loginId]
+    );
+
+    await database.executeQuery(
+        'INSERT INTO reset_password_confirmations (id, login_id, expires) VALUES ($1, $2, now() + ' + expiration + ')',
+        [resetId, loginId]
+    );
+
+    return resetId;
+}
+
+async function confirmResetPassword(resetId) {
+
+    const dbResult = await database.executeQuery(
+        'SELECT logins.id FROM reset_password_confirmations INNER JOIN logins ON reset_password_confirmations.login_id = logins.id ' +
+        'WHERE (logins.enabled = true) AND (reset_password_confirmations.id = $1) AND (reset_password_confirmations.expires > now())',
+        [resetId]
+    );
+    if (dbResult.rowCount < 1) return false;
+
+    const loginId = dbResult.rows[0].id;
+
+    const newPassword = randomPassword();
+    const transformedPassword = await passwordService.transformPasswordInitial(newPassword);
+
+    await database.executeQuery(
+        'UPDATE logins SET password = $1, password_details = $2, last_password_change = now() WHERE id = $3',
+        [transformedPassword.derived, JSON.stringify(transformedPassword.options), loginId]
+    );
+
+    await database.executeQuery(
+        'DELETE FROM reset_password_confirmations WHERE id = $1',
+        [resetId]
+    );
+
+    return newPassword;
 }
 
 if (constants.enableCustomAuth) {
@@ -297,6 +362,49 @@ if (constants.enableCustomAuth) {
                     status: constants.statusCodes.invalidParameters
                 });
             }
+        });
+
+    router.post('/reset_password', throttling.intercept('resetPasswordCustomAuth', constants.throttleRegisterCustomAuthSeconds),
+        async (req, res) => {
+
+            const input = req.body;
+
+            const valid = validateEmail(input.email)
+                && input.acceptPrivacy
+                && input.acceptTos;
+
+            if (! valid) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters
+                });
+                return;
+            }
+
+            const resetId = await getIdForResettingPassword(input.email);
+
+            if (resetId) {
+
+                emailResetPasswordLink(input.email, resetId);
+            }
+
+            //send ok even if the email does not exist, so as not to alert the user to whether the email is used or not
+            res.sendJson({
+                status: constants.statusCodes.ok
+            });
+        });
+
+    //GET is needed as the user normally opens a link with the confirmation id
+    router.get('/confirm_reset_password/:id', throttling.intercept('resetPasswordCustomAuth', constants.throttleResetPasswordCustomAuthSeconds),
+        async (req, res) => {
+
+            const newPassword = await confirmResetPassword(req.params.id);
+            if (newPassword && newPassword.length) {
+
+                res.send('Your new password: ' + newPassword);
+                return;
+            }
+            res.send('Could not reset the password.');
         });
 }
 
