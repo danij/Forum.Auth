@@ -33,5 +33,6 @@ module.exports = {
     },
     trustForwardedIP: process.env.TRUST_FORWARDED_IP === 'true',
     throttleRegisterCustomAuthSeconds: parseInt(process.env.REGISTER_CUSTOM_AUTH_THROTTLING),
+    throttleLoginCustomAuthSeconds: parseInt(process.env.LOGIN_CUSTOM_AUTH_THROTTLING),
     useSecureCookies: process.env.SECURE_COOKIES === 'true'
 };

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
 const crypto = require('crypto');
 const constants = require('../services/constants');
+const authService = require('../services/auth');
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -45,10 +45,6 @@ function hashId(input) {
     return sha.digest('hex');
 }
 
-function generateRandomToken() {
-
-    return crypto.randomBytes(constants.authCookieSize).toString('hex');
-}
 
 function beforeFilter(req, res, next) {
 
@@ -69,10 +65,7 @@ function beforeFilter(req, res, next) {
 
     res.cookieIfConsented(constants.redirectCookieName, referer, {maxAge: 600000, httpOnly: true});
 
-    if (req.query['show-in-users-online'] === 'true') {
-
-        res.cookieIfConsented('show_my_user_in_users_online', 'true', {httpOnly: true});
-    }
+    authService.showInOnlineUsers(res, req.query['show-in-users-online'] === 'true');
 
     next();
 }
@@ -83,21 +76,17 @@ async function getToken(req, res, next) {
 
     res.cookieIfConsented(constants.redirectCookieName, '', {maxAge: 0});
 
-    const authToken = generateRandomToken();
-    const authId = req.user.provider + '_' + hashId(req.user.id);
-
     try {
-        const response = await axios.post(constants.authRegisterUrl +
-            ['login', authToken, authId, constants.authDurationSeconds.toString()].map(encodeURIComponent).join('/'));
+        const authId = req.user.provider + '_' + hashId(req.user.id);
 
-        if (response.status >= 200 && response.status < 300) {
+        const authResult = await authService.forwardAuth(res, authId, 'external');
+        if (true === authResult) {
 
-            res.cookieIfConsented(constants.authCookieName, authToken, {maxAge: constants.authDurationSeconds * 1000, httpOnly: true});
-            res.cookieIfConsented(constants.authProviderName, 'external', {maxAge: constants.authDurationSeconds * 1000});
             res.redirect(redirectTo);
         }
         else {
-            next(new Error(res.statusText));
+
+            next(new Error(authResult));
         }
     }
     catch (e) {

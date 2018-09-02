@@ -8,6 +8,7 @@ const database = require('../services/database');
 const throttling = require('../services/throttling');
 const passwordService = require('../services/password');
 const emailService = require('../services/email');
+const authService = require('../services/auth');
 
 function validateEmail(email) {
 
@@ -27,7 +28,7 @@ function validateMinAge(minAge) {
 
 function emailAlphaNumeric(email) {
 
-    return email.replace(/[^a-zA-Z0-9@]/gi, '');
+    return email.replace(/[^a-zA-Z0-9@]/gi, '').toLowerCase();
 }
 
 async function emailInUse(email) {
@@ -118,6 +119,23 @@ async function confirmRegistration(confirmationId) {
     return true;
 }
 
+async function login(email, password) {
+
+    const dbResult = await database.executeQuery(
+        'SELECT auth, password, password_details FROM logins WHERE email = $1',
+        [email]
+    );
+    if (dbResult.rowCount < 1) return '';
+
+    const dbRow = dbResult.rows[0];
+
+    if (dbRow.password !== await passwordService.transformPassword(password, JSON.parse(dbRow.password_details))) {
+
+        return '';
+    }
+    return dbRow.auth;
+}
+
 if (constants.enableCustomAuth) {
 
     router.post('/register', throttling.intercept('registerCustomAuth', constants.throttleRegisterCustomAuthSeconds),
@@ -178,6 +196,52 @@ if (constants.enableCustomAuth) {
         }
         res.send('Could not confirm registration.');
     });
+
+    router.post('/login', throttling.intercept('loginCustomAuth', constants.throttleRegisterCustomAuthSeconds),
+        async (req, res) => {
+
+            const input = req.body;
+
+            const valid = validateEmail(input.email)
+                && (input.password.length)
+                && input.acceptPrivacy
+                && input.acceptTos;
+
+            if (! valid) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters
+                });
+                return;
+            }
+
+            const authId = await login(input.email, input.password);
+
+            if (authId.length < 1) {
+
+                res.sendJson({
+
+                    status: constants.statusCodes.invalidParameters,
+                });
+                return;
+            }
+
+            authService.showInOnlineUsers(res, input.showInOnlineUsers);
+
+            const authResult = await authService.forwardAuth(res, authId, 'custom');
+
+            if (true === authResult) {
+
+                res.sendJson({
+
+                    status: constants.statusCodes.ok
+                });
+            }
+            else {
+
+                throw new Error(authResult);
+            }
+        });
 }
 
 module.exports = router;
