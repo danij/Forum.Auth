@@ -56,7 +56,7 @@ function randomConfirmationId() {
 
 function randomAuth() {
 
-    return 'auth_' + crypto.randomBytes(constants.registrationAuthSize).toString('hex');
+    return 'custom_' + crypto.randomBytes(constants.registrationAuthSize).toString('hex');
 }
 
 function randomPassword() {
