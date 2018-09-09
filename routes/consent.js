@@ -19,7 +19,7 @@ router.delete('/consent_fp_cookies', (req, res) => {
     const cookieNames = [
 
         'allow_cookies_fp',
-        'allow_external_images',
+        'allow_external_content',
         'auth',
         'auth_provider',
         'double_submit',
@@ -34,15 +34,15 @@ router.delete('/consent_fp_cookies', (req, res) => {
     res.sendJson('ok');
 });
 
-router.post('/consent_external_images', (req, res) => {
+router.post('/consent_external_content', (req, res) => {
 
-    res.cookieIfConsented('allow_external_images', 'yes', {maxAge: consentSeconds * 1000});
+    res.cookieIfConsented('allow_external_content', 'yes', {maxAge: consentSeconds * 1000});
     res.sendJson('ok');
 });
 
-router.delete('/consent_external_images', (req, res) => {
+router.delete('/consent_external_content', (req, res) => {
 
-    removeCookie(res, 'allow_external_images');
+    removeCookie(res, 'allow_external_content');
     res.sendJson('ok');
 });
 
