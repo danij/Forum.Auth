@@ -14,7 +14,7 @@ const logout = require('./routes/logout');
 
 const app = express();
 
-app.use(logger('dev'));
+app.use(logger('common'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
