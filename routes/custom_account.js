@@ -66,6 +66,7 @@ function randomPassword() {
 
 const emailRegisterTemplate = fs.readFileSync(__dirname + '/../register_confirmation_template.html', 'utf8');
 const emailForgotPasswordTemplate = fs.readFileSync(__dirname + '/../reset_password_confirmation_template.html', 'utf8');
+const emailPasswordChangeTemplate = fs.readFileSync(__dirname + '/../change_password_notification.html', 'utf8');
 
 function emailRegistrationConfirmation(email, confirmationId) {
 
@@ -79,6 +80,12 @@ function emailResetPasswordLink(email, resetId) {
     const confirmationLink = constants.resetPasswordConfirmationUrl + '/' + encodeURIComponent(resetId);
     const messageBody = emailForgotPasswordTemplate.replace(/{{reset_link}}/g, confirmationLink);
     emailService.sendEmail(email, constants.resetPasswordConfirmationTitle, messageBody, messageBody);
+}
+
+function emailPasswordChangeNotificationLink(email) {
+
+    const messageBody = emailPasswordChangeTemplate;
+    emailService.sendEmail(email, constants.passwordChangeNotificationTitle, messageBody, messageBody);
 }
 
 async function registerUserAndGetConfirmationId(email, password, minAge) {
@@ -351,6 +358,8 @@ if (constants.enableCustomAuth) {
             }
 
             if (await changePassword(input.email, input.oldPassword, input.newPassword)) {
+
+                emailPasswordChangeNotificationLink(input.email);
 
                 res.sendJson({
                     status: constants.statusCodes.ok
