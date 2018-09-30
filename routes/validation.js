@@ -11,11 +11,11 @@ module.exports = {
 
     checkCookieConsent: (req, res, next) => {
 
-        req.hasConsentedToFpCookies = 'yes' === req.cookies['allow_cookies_fp'];
+        req.hasConsentedToRequiredCookies = 'yes' === req.cookies['allow_cookies_required'];
 
         res.cookieIfConsented = (name, value, options) => {
 
-            if (req.hasConsentedToFpCookies) {
+            if (req.hasConsentedToRequiredCookies) {
 
                 res.cookieSecureAuto(name, value, options);
             }

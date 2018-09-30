@@ -48,7 +48,7 @@ function hashId(input) {
 
 function beforeFilter(req, res, next) {
 
-    if ( ! req.hasConsentedToFpCookies) {
+    if ( ! req.hasConsentedToRequiredCookies) {
 
         res.status(400);
         res.send('Cookie consent required before logging in.');

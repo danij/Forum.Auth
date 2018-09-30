@@ -8,17 +8,17 @@ function removeCookie(res, name) {
     res.cookie(name, '', {maxAge: 1, httpOnly: true});
 }
 
-router.post('/consent_fp_cookies', (req, res) => {
+router.post('/consent_required_cookies', (req, res) => {
 
-    res.cookieSecureAuto('allow_cookies_fp', 'yes', {maxAge: consentSeconds * 1000});
+    res.cookieSecureAuto('allow_cookies_required', 'yes', {maxAge: consentSeconds * 1000});
     res.sendJson('ok');
 });
 
-router.delete('/consent_fp_cookies', (req, res) => {
+router.delete('/consent_required_cookies', (req, res) => {
 
     const cookieNames = [
 
-        'allow_cookies_fp',
+        'allow_cookies_required',
         'allow_external_content',
         'auth',
         'auth_provider',
