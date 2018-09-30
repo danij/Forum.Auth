@@ -27,6 +27,7 @@ module.exports = {
     registrationConfirmationRedirectUrl: process.env.REGISTER_CONFIRMATION_REDIRECT_URL,
     registrationConfirmationTitle: process.env.REGISTER_CONFIRMATION_TITLE,
     passwordChangeNotificationTitle: process.env.PASSWORD_CHANGE_NOTIFICATION_TITLE,
+    reCAPTCHASecretKey: process.env.RECAPTCHA_SECRET_KEY,
     resetPasswordConfirmationTitle: process.env.RESET_PASSWORD_CONFIRMATION_TITLE,
     resetPasswordConfirmationUrl: process.env.RESET_PASSWORD_CONFIRMATION_URL,
     resetPasswordConfirmationTimeoutSeconds: parseInt(process.env.RESET_PASSWORD_TIMEOUT_SECONDS),

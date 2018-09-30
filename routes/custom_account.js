@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const fs = require('fs');
+const axios = require('axios');
 
 const constants = require('../services/constants');
 const database = require('../services/database');
@@ -86,6 +87,30 @@ function emailPasswordChangeNotificationLink(email) {
 
     const messageBody = emailPasswordChangeTemplate;
     emailService.sendEmail(email, constants.passwordChangeNotificationTitle, messageBody, messageBody);
+}
+
+async function validateNotARobot(response) {
+
+    if ( ! response) return false;
+
+    try {
+
+        const result = await axios({
+
+            url: 'https://www.google.com/recaptcha/api/siteverify',
+            method: 'post',
+            params: {
+
+                secret: constants.reCAPTCHASecretKey,
+                response: response
+            }
+        });
+        return (200 == result.status) && result.data.success;
+    }
+    catch {
+
+        return false;
+    }
 }
 
 async function registerUserAndGetConfirmationId(email, password, minAge) {
@@ -255,6 +280,15 @@ if (constants.enableCustomAuth) {
                 return;
             }
 
+            if (constants.reCAPTCHASecretKey && ( ! await validateNotARobot(input.notARobotResponse))) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters,
+                    statusText: 'Failed to verify that the user is not a robot'
+                });
+                return;
+            }
+
             if (await emailInUse(input.email)) {
 
                 res.sendJson({
@@ -312,6 +346,15 @@ if (constants.enableCustomAuth) {
                 return;
             }
 
+            if (constants.reCAPTCHASecretKey && ( ! await validateNotARobot(input.notARobotResponse))) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters,
+                    statusText: 'Failed to verify that the user is not a robot'
+                });
+                return;
+            }
+
             const authId = await login(input.email, input.password);
 
             if (authId.length < 1) {
@@ -357,6 +400,15 @@ if (constants.enableCustomAuth) {
                 return;
             }
 
+            if (constants.reCAPTCHASecretKey && ( ! await validateNotARobot(input.notARobotResponse))) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters,
+                    statusText: 'Failed to verify that the user is not a robot'
+                });
+                return;
+            }
+
             if (await changePassword(input.email, input.oldPassword, input.newPassword)) {
 
                 emailPasswordChangeNotificationLink(input.email);
@@ -386,6 +438,15 @@ if (constants.enableCustomAuth) {
 
                 res.sendJson({
                     status: constants.statusCodes.invalidParameters
+                });
+                return;
+            }
+
+            if (constants.reCAPTCHASecretKey && ( ! await validateNotARobot(input.notARobotResponse))) {
+
+                res.sendJson({
+                    status: constants.statusCodes.invalidParameters,
+                    statusText: 'Failed to verify that the user is not a robot'
                 });
                 return;
             }
