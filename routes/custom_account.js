@@ -346,15 +346,6 @@ if (constants.enableCustomAuth) {
                 return;
             }
 
-            if (constants.reCAPTCHASecretKey && ( ! await validateNotARobot(input.notARobotResponse))) {
-
-                res.sendJson({
-                    status: constants.statusCodes.invalidParameters,
-                    statusText: 'Failed to verify that the user is not a robot'
-                });
-                return;
-            }
-
             const authId = await login(input.email, input.password);
 
             if (authId.length < 1) {
