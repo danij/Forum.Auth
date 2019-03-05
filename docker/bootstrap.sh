@@ -11,9 +11,9 @@ chown postgres /forum/logs/sqldb
 su -c '/usr/lib/postgresql/10/bin/initdb -D /forum/data/sqldb -E utf8' postgres
 su -c '/usr/lib/postgresql/10/bin/pg_ctl -D /forum/data/sqldb -l /forum/logs/sqldb/logfile start' postgres
 
-cp /forum/repos/Forum.Auth/docker/create_db.sh /tmp/create_db.sh
-chmod +x /tmp/create_db.sh
-su -c '/tmp/create_db.sh' postgres
+cp /forum/repos/Forum.Auth/docker/create_db_auth.sh /tmp/create_db_auth.sh
+chmod +x /tmp/create_db_auth.sh
+su -c '/tmp/create_db_auth.sh' postgres
 
 cp /forum/repos/Forum.Auth/docker/start.sh /forum/start/Forum.Auth.sh
 chmod +x /forum/start/Forum.Auth.sh
