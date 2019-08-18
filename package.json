@@ -6,15 +6,15 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "body-parser": "^1.18.3",
+    "axios": "^0.18.1",
+    "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
     "debug": "~2.6.9",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
     "morgan": "^1.9.1",
     "nodemailer": "^4.7.0",
     "passport": "^0.4.0",
     "passport-google-oauth": "^1.0.0",
-    "pg": "^7.9.0"
+    "pg": "^7.12.1"
   }
 }
